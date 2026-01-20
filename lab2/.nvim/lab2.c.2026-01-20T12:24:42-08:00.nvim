@@ -1,0 +1,43 @@
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <wait.h>
+#include <string.h>
+
+int main() {
+  char *buff = NULL;
+  size_t size = 0;
+  
+  while(1) {
+    printf("Enter programs to run.\n");
+    
+    // Read in program path and do a check
+    if (getline(&buff, &size, stdin) == -1) {
+      break;
+    }
+    
+    // Remove trailing new line
+    buff[strcspn (buff, "\n")] = 0;
+
+    pid_t pid = fork();
+
+    if (pid == -1) {
+      perror("fork failed");
+      continue;
+    }
+    
+    if (pid == 0) {
+      execl(buff, buff, (char *)NULL);
+
+      perror("execl failed"); //runs only if execl returns
+      exit(1);
+    } else {
+      waitpid(pid, NULL, 0);
+    }
+  }
+
+  free(buff);
+
+  return 0;
+}

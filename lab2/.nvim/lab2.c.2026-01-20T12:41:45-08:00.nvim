@@ -1,0 +1,43 @@
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <wait.h>
+
+int main() {
+  char *buff = NULL;
+  size_t size = 0;
+
+  while (1) {
+    printf("Enter programs to run.\n");
+
+    // Read in program path and do a check
+    if (getline(&buff, &size, stdin) == -1) {
+      break;
+    }
+
+    // Remove trailing new line
+    buff[strcspn(buff, "\n")] = 0;
+
+    pid_t pid = fork();
+
+    if (pid == -1) {
+      perror("fork failed");
+      continue;
+    }
+
+    if (pid == 0) { // Child process receives the path and executes the command at end of path
+      execl(buff, buff, (char *)NULL);
+
+      perror("execl failed"); // runs only if execl returns
+      exit(1);
+    } else { // Parent process waits for child to execute and receives status then continues
+      waitpid(pid, NULL, 0);
+    }
+  }
+
+  free(buff);
+
+  return 0;
+}
