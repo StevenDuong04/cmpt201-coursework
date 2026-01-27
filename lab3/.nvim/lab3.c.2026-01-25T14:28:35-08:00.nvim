@@ -1,0 +1,51 @@
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+void print_lines(char *arr[], int index) {
+  for (int i = 0; i < index; i++)
+    printf("%s\n", arr[i]);
+}
+
+void shift(char *arr[], char *buff) {
+  free(arr[0]);
+  arr[0] = arr[1];
+  arr[1] = arr[2];
+  arr[2] = arr[3];
+  arr[3] = arr[4];
+  arr[4] = buff;
+}
+
+int main(void) {
+  char *strings[5];
+  char *buff = NULL;
+  size_t size = 0;
+  int index = 0;
+  
+  while(1) {
+    printf("Enter input: ");
+    
+    if (getline(&buff, &size, stdin) == -1) {
+      break;
+    } else if (strcmp(buff, "print\n") == 0) {
+      if (index == 4) {
+        shift(strings, buff);
+      } else {
+        strings[index] = buff;
+        index++;
+        print_lines(strings, index);
+      }
+    } else {
+      if (index == 4) {
+        shift(strings, buff);
+      } else {
+      strings[index] = buff;
+      index++;
+      }
+    }
+  }
+
+  return 0;
+}
+
